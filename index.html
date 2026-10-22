@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>WebStudio PWA - Live HTML Code Editor & Device Simulator</title>
+  <meta name="description" content="Progressive Web App IDE lengkap dengan Live Preview, Split-Screen, Device Toolbar Emulator, Emmet, Syntax Highlighting, Linter, dan AI Assistant." />
+  <meta property="og:title" content="WebStudio PWA - Live HTML Code Editor & Device Simulator" />
+  <meta property="og:description" content="PWA Live HTML Code Editor, Hybrid App Simulator, dan Real-time Device Emulator siap GitHub Pages & Vercel." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- PWA Manifest & App Config -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WebStudio" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="./style.css" />
+
+  <!-- Service Worker Registration Inline Script -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js')
+          .then(function (registration) {
+            console.log('[WebStudio PWA] Service Worker registered with scope:', registration.scope);
+          })
+          .catch(function (error) {
+            console.warn('[WebStudio PWA] Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+      <div class="brand-wrapper">
+        <img src="./icon-192.png" alt="WebStudio App Icon" class="app-icon-img" id="app-logo-badge" title="WebStudio Icon 192x192" />
+        <div class="brand-text-group">
+          <div class="brand-title">
+            <span>WebStudio</span>
+            <span class="brand-badge">PWA</span>
+          </div>
+          <span class="brand-subtitle">Live HTML IDE & Device Simulator</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="nav-actions">
+        <button class="btn" id="btn-open-templates" title="Koleksi Template HTML & Hybrid App">
+          <span>Templates</span>
+        </button>
+
+        <button class="btn" id="btn-format-code" title="Rerapikan kode (Shift + Alt + F)">
+          <span>Beautify</span>
+        </button>
+
+        <button class="btn btn-accent" id="btn-toggle-find" title="Cari & Ganti Teks (Ctrl + F)">
+          <span>Cari/Ganti</span>
+        </button>
+
+        <button class="btn btn-accent" id="btn-toggle-ai" title="In-line AI Code Revision Assistant">
+          <span>✨ AI Edit</span>
+        </button>
+
+        <button class="btn" id="btn-sync-external" title="External Browser Sync (Buka pratinjau di jendela/tab baru)">
+          <span>Sync Tab</span>
+        </button>
+
+        <button class="btn" id="btn-export-file" title="Unduh file index.html ke perangkat lokal">
+          <span>Export</span>
+        </button>
+
+        <button class="btn btn-primary" id="btn-install-pwa" style="display:none;" title="Pasang WebStudio sebagai PWA">
+          <span>+ Install App</span>
+        </button>
+
+        <button class="btn btn-icon-only" id="btn-toggle-theme" title="Beralih Tema Terang / Gelap">
+          🌙
+        </button>
+      </div>
+    </header>
+
+    <!-- Sub-Toolbar: Split Screen, Device Emulator, Orientation, Zoom -->
+    <nav class="sub-toolbar">
+      <div class="toolbar-group">
+        <span style="font-weight:600; color:var(--text-muted); margin-right:4px;">Split:</span>
+        <div class="btn-pill-group" id="split-pill-group">
+          <button class="btn-pill active" data-split="horizontal" title="Tampilan berdampingan horizontal">↔ Horiz</button>
+          <button class="btn-pill" data-split="vertical" title="Tampilan atas-bawah vertikal">↕ Vert</button>
+          <button class="btn-pill" data-split="code-only" title="Hanya editor kode">📄 Kode</button>
+          <button class="btn-pill" data-split="preview-only" title="Hanya pratinjau langsung">📱 Preview</button>
+        </div>
+      </div>
+
+      <div class="toolbar-group">
+        <span style="font-weight:600; color:var(--text-muted); margin-right:4px;">Device:</span>
+        <select id="select-device" class="input-compact" style="min-width:130px; cursor:pointer;" title="Pilih emulator perangkat">
+          <option value="responsive">Responsive (100%)</option>
+          <option value="iphone15pro">iPhone 15 Pro (393×852)</option>
+          <option value="pixel8">Google Pixel 8 (412×915)</option>
+          <option value="ipadair">iPad Air 11" (820×1180)</option>
+          <option value="desktop1080">Desktop HD (1280×720)</option>
+        </select>
+
+        <button class="btn btn-icon-only" id="btn-rotate-device" title="Putar Orientasi (Portrait / Landscape)">
+          🔄
+        </button>
+
+        <select id="select-zoom" class="input-compact" style="min-width:70px; cursor:pointer;" title="Skala Zoom Preview">
+          <option value="0.5">50%</option>
+          <option value="0.75">75%</option>
+          <option value="1" selected>100%</option>
+          <option value="1.25">125%</option>
+        </select>
+
+        <button class="btn btn-pill active" id="btn-toggle-chassis" title="Tampilkan bingkai fisik perangkat ponsel/tablet">
+          Frame ON
+        </button>
+      </div>
+    </nav>
+
+    <!-- Workspace Main Stage -->
+    <main class="workspace-container split-horizontal" id="workspace-container">
+      <!-- Left / Top: Code Editor Panel -->
+      <section class="editor-panel" id="editor-panel">
+        <div class="editor-header">
+          <div class="editor-tabs">
+            <div class="editor-tab">
+              <span class="editor-tab-badge" id="editor-tab-badge"></span>
+              <span>index.html</span>
+            </div>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted);">
+            HTML5 + CSS + JS • UTF-8
+          </div>
+        </div>
+
+        <!-- Find and Replace Bar (Ctrl + F) -->
+        <div class="find-replace-bar" id="find-replace-bar">
+          <input type="text" id="find-input" class="input-compact" placeholder="Cari kata/tag..." />
+          <span id="find-count" style="font-size:11px; color:var(--text-muted); min-width:45px;">0 of 0</span>
+          <button class="btn" id="btn-find-prev" title="Cari sebelumnya">▲</button>
+          <button class="btn" id="btn-find-next" title="Cari berikutnya">▼</button>
+          <input type="text" id="replace-input" class="input-compact" placeholder="Ganti dengan..." />
+          <button class="btn" id="btn-replace">Ganti</button>
+          <button class="btn btn-accent" id="btn-replace-all">Ganti Semua</button>
+          <button class="btn btn-icon-only" id="btn-find-close" style="margin-left:auto;">✕</button>
+        </div>
+
+        <!-- In-line AI Revision Drawer -->
+        <div class="ai-inline-drawer" id="ai-inline-drawer">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; font-weight:700; color:var(--brand-primary); display:flex; align-items:center; gap:6px;">
+              ✨ In-line AI Code Revision Assistant
+            </span>
+            <button class="btn btn-icon-only" id="btn-ai-close" style="height:24px; width:24px;">✕</button>
+          </div>
+          <div class="ai-prompt-input-row">
+            <input type="text" id="ai-prompt-input" class="ai-input" placeholder="Instruksi revisi kode HTML (contoh: Tambahkan hero section dengan CTA modern)..." />
+            <button class="btn btn-primary" id="btn-ai-apply">Terapkan Revisi</button>
+          </div>
+          <div class="ai-chips-container" id="ai-chips-container">
+            <!-- Dynamic prompt chips loaded from app-data.json -->
+          </div>
+        </div>
+
+        <!-- Code Editor Surface & Line Numbering -->
+        <div class="code-editor-wrapper">
+          <div class="code-gutter" id="code-gutter">
+            <!-- Dynamic line numbers and folding arrows -->
+          </div>
+          <div class="editor-stage">
+            <pre class="syntax-highlight-layer" id="syntax-highlight-layer" aria-hidden="true"></pre>
+            <textarea
+              id="code-textarea"
+              class="code-textarea"
+              spellcheck="false"
+              autocapitalize="off"
+              autocomplete="off"
+              autocorrect="off"
+              placeholder="Ketik kode HTML di sini..."
+            ></textarea>
+
+            <!-- Autocomplete suggestion popup -->
+            <div class="autocomplete-popup" id="autocomplete-popup"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Splitter Resizer Handle -->
+      <div class="splitter-handle" id="splitter-handle" title="Tarik untuk menyesuaikan ukuran"></div>
+
+      <!-- Right / Bottom: Live Preview Panel -->
+      <section class="preview-panel" id="preview-panel">
+        <div class="preview-toolbar">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:8px; height:8px; border-radius:50%; background:#10b981;" title="Live Preview Sync Aktif"></span>
+            <span style="font-weight:600; font-size:12px;">Live Preview Real-Time</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted);">
+            Render instan tanpa refresh
+          </div>
+        </div>
+
+        <!-- Emulator Display Stage -->
+        <div class="preview-stage-container">
+          <div class="device-wrapper" id="device-wrapper">
+            <div class="device-top-island"></div>
+            <iframe id="preview-iframe" class="preview-iframe" sandbox="allow-scripts allow-modals allow-same-origin allow-forms" title="WebStudio Live Preview"></iframe>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Status & Diagnostics Bar -->
+    <footer class="bottom-status-bar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="status-badge" id="status-lint" title="Buka drawer laporan linter sintaks">
+          <span class="status-dot"></span>
+          <span>0 Error, 0 Peringatan</span>
+        </div>
+        <span id="status-cursor">Ln 1, Col 1</span>
+        <span id="status-length" class="hide-on-mobile">0 chars</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="status-badge" id="btn-show-icons-modal" title="Lihat 2 Icon PNG Resmi">
+          🖼️ 2 Icon PWA
+        </button>
+        <button class="status-badge" id="btn-show-schema" title="Lihat Struktur Data Aplikasi (app-data.json)">
+          📊 Skema app-data.json
+        </button>
+        <span class="hide-on-mobile" style="color:var(--success);">✓ PWA CacheFirst Active</span>
+      </div>
+    </footer>
+
+    <!-- Linter Diagnostics Drawer -->
+    <div class="lint-drawer" id="lint-drawer">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 14px; background:var(--bg-tertiary); border-bottom:1px solid var(--border-color); font-weight:600; font-size:11px;">
+        <span>Laporan Validasi Sintaks HTML (Linter)</span>
+        <span style="color:var(--text-muted); cursor:pointer;" onclick="document.getElementById('lint-drawer').classList.remove('open')">✕ Tutup</span>
+      </div>
+      <div id="lint-list"></div>
+    </div>
+
+    <!-- Modal 1: App Data Schema Viewer (app-data.json) -->
+    <div class="modal-overlay" id="schema-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">
+            <span>📊</span>
+            <span>Skema Struktur Aplikasi (app-data.json)</span>
+          </div>
+          <button class="btn btn-icon-only" id="btn-close-schema">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom:12px;">Data arsitektur flat root, katalog fitur pratinjau, penyuntingan kode, preset perangkat, dan Emmet snippets:</p>
+          <pre id="schema-content" style="background:var(--bg-editor); border:1px solid var(--border-color); padding:12px; border-radius:6px; font-family:var(--font-mono); font-size:11px; overflow-x:auto; max-height:400px; color:var(--text-primary);"></pre>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="document.getElementById('schema-modal').classList.remove('open')">Tutup</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Templates Library Modal -->
+    <div class="modal-overlay" id="templates-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">
+            <span>🚀</span>
+            <span>Koleksi Template HTML & Hybrid App</span>
+          </div>
+          <button class="btn btn-icon-only" id="btn-close-templates">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom:12px;">Pilih salah satu template siap pakai untuk langsung dimuat ke editor:</p>
+          <div id="templates-list"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="document.getElementById('templates-modal').classList.remove('open')">Batal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: 2 Icons Showcase Modal (Perintah 6) -->
+    <div class="modal-overlay" id="icons-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">
+            <span>🎨</span>
+            <span>2 Icon PWA Sesuai Judul (192px & 512px)</span>
+          </div>
+          <button class="btn btn-icon-only" onclick="document.getElementById('icons-modal').classList.remove('open')">✕</button>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+          <p style="margin-bottom:16px;">Kedua icon PNG ini tersimpan di root folder dan terdaftar dalam <code>manifest.json</code> & <code>sw.js</code> untuk instalasi PWA di Android dan iOS:</p>
+          
+          <div style="display:flex; justify-content:space-around; align-items:center; gap:16px; margin:20px 0; flex-wrap:wrap;">
+            <div style="background:var(--bg-tertiary); padding:16px; border-radius:12px; border:1px solid var(--border-color);">
+              <img src="./icon-192.png" alt="Icon 192x192" style="width:96px; height:96px; border-radius:16px; box-shadow:var(--shadow-md);" />
+              <div style="font-weight:700; margin-top:8px; font-size:12px;">icon-192.png</div>
+              <div style="font-size:10px; color:var(--text-muted);">Resolusi: 192 x 192 px</div>
+            </div>
+
+            <div style="background:var(--bg-tertiary); padding:16px; border-radius:12px; border:1px solid var(--border-color);">
+              <img src="./icon-512.png" alt="Icon 512x512" style="width:128px; height:128px; border-radius:20px; box-shadow:var(--shadow-md);" />
+              <div style="font-weight:700; margin-top:8px; font-size:12px;">icon-512.png</div>
+              <div style="font-size:10px; color:var(--text-muted);">Resolusi: 512 x 512 px</div>
+            </div>
+          </div>
+
+          <div style="text-align:left; background:var(--bg-tertiary); padding:12px; border-radius:8px; font-size:11px;">
+            <strong>Sumber Asli Icon:</strong><br />
+            <a href="https://cdn-icons-png.flaticon.com/512/1087/1087815.png" target="_blank" rel="noreferrer" style="color:var(--brand-primary); word-break:break-all;">
+              https://cdn-icons-png.flaticon.com/512/1087/1087815.png
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="document.getElementById('icons-modal').classList.remove('open')">Selesai</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <!-- Event listener for showing the 2 Icons modal -->
+  <script>
+    document.getElementById('btn-show-icons-modal').addEventListener('click', function () {
+      document.getElementById('icons-modal').classList.add('open');
+    });
+  </script>
+
+  <!-- External App Script -->
+  <script src="./app.js"></script>
+</body>
+</html>
