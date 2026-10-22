@@ -1,0 +1,46 @@
+{
+  "id": "./",
+  "name": "WebStudio PWA - Live HTML Code Editor & Device Simulator",
+  "short_name": "WebStudio",
+  "description": "Progressive Web App IDE lengkap dengan Live Preview, Split-Screen, Device Toolbar Emulator, Emmet, Syntax Highlighting, Linter, dan AI Assistant.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1087/1087815.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1087/1087815.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["developer", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Editor & Live Preview",
+      "url": "./",
+      "description": "Open HTML code editor and live preview"
+    }
+  ]
+}
